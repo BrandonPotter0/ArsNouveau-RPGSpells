@@ -65,4 +65,4 @@ On Windows:
 gradlew.bat build
 ```
 
-The first implementation milestone will be a minimal loadable mod with validated dependency metadata and configuration. The next milestone will implement and test mana preflight, consumption, and rune-cost suppression.
+The next milestone is build validation, followed by in-game testing against both Wizards and Elemental Wizards. See [the testing checklist](docs/testing-checklist.md) for the first validation pass.
