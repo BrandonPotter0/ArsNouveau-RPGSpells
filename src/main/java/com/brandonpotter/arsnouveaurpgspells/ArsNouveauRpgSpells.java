@@ -1,6 +1,8 @@
 package com.brandonpotter.arsnouveaurpgspells;
 
 import com.brandonpotter.arsnouveaurpgspells.config.ManaConfig;
+import com.brandonpotter.arsnouveaurpgspells.mana.RuneManaCosts;
+import net.spell_engine.api.spell.event.SpellEvents;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -14,5 +16,8 @@ public final class ArsNouveauRpgSpells {
 
     public ArsNouveauRpgSpells(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, ManaConfig.SPEC);
+
+        SpellEvents.CASTING_ATTEMPT.PRE.register(RuneManaCosts::onCastingAttempt);
+        SpellEvents.COST_CONSUME.register(RuneManaCosts::onSpellCostConsume);
     }
 }
