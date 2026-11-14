@@ -41,6 +41,8 @@ public final class FocusCompatibility {
 
         String schoolId = spellEntry.value().school.id.toString();
         List<Spell.Modifier> modifiers = new ArrayList<>();
+        LOGGER.info("Curios inventory for {} has {} equipped slots while casting school {}",
+                player.getGameProfile().getName(), curios.getSlots(), schoolId);
 
         for (int slot = 0; slot < curios.getSlots(); slot++) {
             ItemStack stack = curios.getStackInSlot(slot);
@@ -49,11 +51,12 @@ public final class FocusCompatibility {
             }
 
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+            LOGGER.info("Curios equipped slot {} contains {}", slot, itemId);
             if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
                 continue;
             }
 
-            LOGGER.info("Equipped Curios item detected: {}", itemId);
+            LOGGER.info("Ars Elemental Focus candidate detected: {}", itemId);
             String path = itemId.getPath();
             if (isNecroticFocus(path)) {
                 addNecroticModifiers(modifiers, schoolId);
