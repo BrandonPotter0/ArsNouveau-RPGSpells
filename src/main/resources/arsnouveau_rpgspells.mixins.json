@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "arsnouveau_rpgspells.refmap.json",
   "mixins": [
-    "AmmoMixin"
+    "AmmoMixin",
+    "SpellModifiersMixin"
   ],
   "injectors": {
     "defaultRequire": 1
