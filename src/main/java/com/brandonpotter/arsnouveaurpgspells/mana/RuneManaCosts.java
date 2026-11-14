@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.api.spell.event.SpellEvents;
 import net.spell_engine.internals.casting.SpellCast;
+import net.spell_engine.internals.casting.SpellCaster;
 
 /**
  * Converts RPG Series rune-item requirements into Ars Nouveau mana costs.
@@ -55,6 +56,12 @@ public final class RuneManaCosts {
 
         Player player = args.caster();
         if (player.getAbilities().instabuild) {
+            return null;
+        }
+
+        // Let Spell Engine report cooldown failures with its normal result and tooltip.
+        if (player instanceof SpellCaster.Player spellCaster
+                && spellCaster.getCooldownManager().isCoolingDown(args.spell())) {
             return null;
         }
 
