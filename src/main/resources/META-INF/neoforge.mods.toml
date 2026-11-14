@@ -53,3 +53,17 @@ type="optional"
 versionRange="*"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="ars_elemental"
+type="optional"
+versionRange="[0.7.10.4,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="ars_elemancy"
+type="optional"
+versionRange="[1.18.3,)"
+ordering="AFTER"
+side="BOTH"
