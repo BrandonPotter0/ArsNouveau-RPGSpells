@@ -15,13 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bridges Ars Elemental's equipped Curio Focuses to Spell Engine RPG spell modifiers.
+ * Bridges Ars Elemental and Ars Elemancy equipped Curio Focuses to Spell Engine RPG spell modifiers.
  *
- * This class deliberately uses item registry IDs instead of linking to Ars Elemental classes.
- * The integration therefore remains safe to load when Ars Elemental is not installed.
+ * This class deliberately uses item registry IDs instead of linking to Ars Elemental or Ars Elemancy classes.
+ * The integrations therefore remain safe to load when either optional mod is not installed.
  */
 public final class FocusCompatibility {
     private static final String ARS_ELEMENTAL = "ars_elemental";
+    private static final String ARS_ELEMANCY = "ars_elemancy";
 
     private FocusCompatibility() {
     }
@@ -65,11 +66,22 @@ public final class FocusCompatibility {
                     }
 
                     ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                    if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
+                    if (itemId == null) {
                         continue;
                     }
 
                     String path = itemId.getPath();
+                    if (ARS_ELEMANCY.equals(itemId.getNamespace())) {
+                        ElemancyFocus elemancyFocus = ElemancyFocus.fromItemPath(path);
+                        if (elemancyFocus != null && elemancyFocus.matches(schoolId)) {
+                            addElementalModifiers(modifiers, 2.0F, true);
+                        }
+                        continue;
+                    }
+                    if (!ARS_ELEMENTAL.equals(itemId.getNamespace())) {
+                        continue;
+                    }
+
                     if (isNecroticFocus(path)) {
                         addNecroticModifiers(modifiers, schoolId);
                         continue;
@@ -156,6 +168,43 @@ public final class FocusCompatibility {
                 || schoolId.equals("spell_power:frost")
                 || schoolId.equals("spell_power:air")
                 || schoolId.equals("spell_power:earth");
+    }
+
+    /**
+     * Ars Elemancy combined Focuses match multiple Spell Power schools.
+     * Frost is included with Water, consistent with the existing Water Focus mapping.
+     */
+    private enum ElemancyFocus {
+        TEMPEST("water", "frost", "air"),
+        SILT("earth", "air"),
+        MIRE("water", "frost", "earth"),
+        LAVA("fire", "earth"),
+        CINDER("fire", "air"),
+        VAPOR("fire", "water", "frost"),
+        ELEMANCY("fire", "earth", "water", "frost", "air");
+
+        private final List<String> schools;
+
+        ElemancyFocus(String... schools) {
+            this.schools = List.of(schools);
+        }
+
+        boolean matches(String schoolId) {
+            return schools.stream().anyMatch(school -> schoolId.equals("spell_power:" + school));
+        }
+
+        static ElemancyFocus fromItemPath(String path) {
+            return switch (path) {
+                case "tempest_focus" -> TEMPEST;
+                case "silt_focus" -> SILT;
+                case "mire_focus" -> MIRE;
+                case "lava_focus" -> LAVA;
+                case "cinder_focus" -> CINDER;
+                case "vapor_focus" -> VAPOR;
+                case "elemancer_focus" -> ELEMANCY;
+                default -> null;
+            };
+        }
     }
 
     private enum FocusSchool {
