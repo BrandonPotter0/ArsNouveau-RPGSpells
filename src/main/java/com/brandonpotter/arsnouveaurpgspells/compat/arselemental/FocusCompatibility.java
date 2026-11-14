@@ -9,6 +9,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.spell_engine.api.spell.Spell;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,7 @@ import java.util.List;
  */
 public final class FocusCompatibility {
     private static final String ARS_ELEMENTAL = "ars_elemental:";
+    private static final Logger LOGGER = LoggerFactory.getLogger("ArsNouveauRpgSpells/FocusCompat");
 
     private FocusCompatibility() {
     }
@@ -31,6 +35,7 @@ public final class FocusCompatibility {
 
         IItemHandlerModifiable curios = CuriosUtil.getAllWornItems(player);
         if (curios == null) {
+            LOGGER.info("No Curios inventory found for player {}", player.getGameProfile().getName());
             return List.of();
         }
 
@@ -48,6 +53,7 @@ public final class FocusCompatibility {
                 continue;
             }
 
+            LOGGER.info("Equipped Curios item detected: {}", itemId);
             String path = itemId.getPath();
             if (isNecroticFocus(path)) {
                 addNecroticModifiers(modifiers, schoolId);
