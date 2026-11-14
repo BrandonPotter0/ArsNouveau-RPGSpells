@@ -66,3 +66,18 @@ gradlew.bat build
 ```
 
 See [the testing checklist](docs/testing-checklist.md) for the next validation pass.
+
+
+## Optional Ars Elemental Focus compatibility
+
+When Ars Elemental 0.7.10.4 or newer is installed, equipped Focuses can modify matching RPG Series spell impacts:
+
+- Fire Focus: Fire spells.
+- Water Focus: Water and Frost spells.
+- Air Focus: Air spells.
+- Earth Focus: Earth spells.
+- Necrotic Focus: Arcane damage and summon impacts.
+
+Lesser elemental Focuses preserve the original matching bonus and non-matching elemental dampening. Greater elemental Focuses use the stronger matching bonus without the dampening penalty. Ars Elemental remains optional; the core mana integration does not link directly against Ars Elemental classes.
+
+The Necrotic Focus mapping is an RPG-side adaptation: Wizards RPG Series exposes Arcane spells and summon impacts rather than Ars Nouveau's Necromancy glyph school. Focus compatibility still requires in-game verification.
