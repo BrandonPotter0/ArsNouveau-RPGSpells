@@ -1,12 +1,13 @@
 package com.brandonpotter.arsnouveaurpgspells.compat.arselemental;
 
-import com.hollingsworth.arsnouveau.api.util.CuriosUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.capability.ICurioStacksHandler;
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import net.spell_engine.api.spell.Spell;
 
 import org.slf4j.Logger;
@@ -33,53 +34,62 @@ public final class FocusCompatibility {
             return List.of();
         }
 
-        IItemHandlerModifiable curios = CuriosUtil.getAllWornItems(player);
-        if (curios == null) {
+        String schoolId = spellEntry.value().school.id.toString();
+        List<Spell.Modifier> modifiers = new ArrayList<>();
+
+        // Scan the named Curios slot handlers directly. Ars Elemental registers its
+        // Focuses in Curios' dedicated "spell_focus" slot; the flattened handler can
+        // omit slots that are inactive or otherwise not represented in its view.
+        Optional<ICuriosItemHandler> curiosOptional = CuriosApi.getCuriosInventory(player);
+        if (curiosOptional.isEmpty()) {
             LOGGER.info("No Curios inventory found for player {}", player.getGameProfile().getName());
             return List.of();
         }
 
-        String schoolId = spellEntry.value().school.id.toString();
-        List<Spell.Modifier> modifiers = new ArrayList<>();
-        LOGGER.info("Curios inventory for {} has {} equipped slots while casting school {}",
-                player.getGameProfile().getName(), curios.getSlots(), schoolId);
+        ICuriosItemHandler curios = curiosOptional.get();
+        LOGGER.info("Curios inventory for {} exposes slot handlers: {}",
+                player.getGameProfile().getName(), curios.getCurios().keySet());
 
-        for (int slot = 0; slot < curios.getSlots(); slot++) {
-            ItemStack stack = curios.getStackInSlot(slot);
-            if (stack.isEmpty()) {
-                continue;
-            }
+        for (var entry : curios.getCurios().entrySet()) {
+            String slotId = entry.getKey();
+            ICurioStacksHandler slotHandler = entry.getValue();
+            var stacks = slotHandler.getStacks();
+            for (int slot = 0; slot < stacks.getSlots(); slot++) {
+                ItemStack stack = stacks.getStackInSlot(slot);
+                if (stack.isEmpty()) {
+                    continue;
+                }
 
-            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-            LOGGER.info("Curios equipped slot {} contains {}", slot, itemId);
-            if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
-                continue;
-            }
+                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                LOGGER.info("Curios slot {}[{}] contains {}", slotId, slot, itemId);
+                if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
+                    continue;
+                }
 
-            LOGGER.info("Ars Elemental Focus candidate detected: {}", itemId);
-            String path = itemId.getPath();
-            if (isNecroticFocus(path)) {
-                addNecroticModifiers(modifiers, schoolId);
-                continue;
-            }
+                LOGGER.info("Ars Elemental Focus candidate detected in {}[{}]: {}", slotId, slot, itemId);
+                String path = itemId.getPath();
+                if (isNecroticFocus(path)) {
+                    addNecroticModifiers(modifiers, schoolId);
+                    continue;
+                }
 
-            FocusSchool focusSchool = FocusSchool.fromItemPath(path);
-            if (focusSchool == null) {
-                continue;
-            }
+                FocusSchool focusSchool = FocusSchool.fromItemPath(path);
+                if (focusSchool == null) {
+                    continue;
+                }
 
-            boolean greater = !path.startsWith("lesser_");
-            boolean matching = focusSchool.matches(schoolId);
-            boolean elementalSpell = isElementalSchool(schoolId);
+                boolean greater = !path.startsWith("lesser_");
+                boolean matching = focusSchool.matches(schoolId);
+                boolean elementalSpell = isElementalSchool(schoolId);
 
-            if (matching) {
-                addElementalModifiers(modifiers, greater ? 2.0F : 1.0F, true);
-            } else if (!greater && elementalSpell) {
-                // Ars Elemental Lesser Focuses dampen other elemental schools.
-                addElementalModifiers(modifiers, -1.0F, false);
+                if (matching) {
+                    addElementalModifiers(modifiers, greater ? 2.0F : 1.0F, true);
+                } else if (!greater && elementalSpell) {
+                    // Ars Elemental Lesser Focuses dampen other elemental schools.
+                    addElementalModifiers(modifiers, -1.0F, false);
+                }
             }
         }
-
         return modifiers;
     }
 
