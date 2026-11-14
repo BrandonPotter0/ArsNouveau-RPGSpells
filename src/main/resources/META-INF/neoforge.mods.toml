@@ -45,7 +45,7 @@ ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
-modId="elemental_wizards"
+modId="elemental_wizards_rpg"
 type="optional"
 versionRange="*"
 ordering="AFTER"
