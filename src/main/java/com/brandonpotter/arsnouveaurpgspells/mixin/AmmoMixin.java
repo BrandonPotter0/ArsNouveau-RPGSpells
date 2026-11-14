@@ -16,9 +16,9 @@ import java.util.List;
  * Returns a satisfied, empty ammo result for rune-based spells so Spell Engine
  * neither checks nor consumes the original rune item.
  */
-@Mixin(Ammo.class)
+@Mixin(value = Ammo.class, remap = false)
 public abstract class AmmoMixin {
-    @Inject(method = "ammoForSpell", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "ammoForSpell", at = @At("RETURN"), cancellable = true, remap = false)
     private static void arsNouveauRpgSpells$replaceRuneAmmoCost(
             Player player,
             Spell spell,
