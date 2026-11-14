@@ -19,9 +19,9 @@ import java.util.ArrayList;
 /**
  * Replaces the removed rune-item tooltip with the calculated Ars Nouveau mana cost.
  */
-@Mixin(SpellTooltip.class)
+@Mixin(value = SpellTooltip.class, remap = false)
 public abstract class SpellTooltipMixin {
-    @Inject(method = "addSpellDescription", at = @At("RETURN"))
+    @Inject(method = "addSpellDescription", at = @At("RETURN"), remap = false)
     private static void arsNouveauRpgSpells$appendManaCost(
             Holder<Spell> spellEntry,
             Player player,
