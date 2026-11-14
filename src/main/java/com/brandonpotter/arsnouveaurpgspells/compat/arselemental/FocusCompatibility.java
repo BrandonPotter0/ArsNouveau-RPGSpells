@@ -5,9 +5,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.type.capability.ICurioStacksHandler;
-import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import java.lang.reflect.Method;
+import java.util.Map;
 import net.spell_engine.api.spell.Spell;
 
 import org.slf4j.Logger;
@@ -38,58 +38,77 @@ public final class FocusCompatibility {
         String schoolId = spellEntry.value().school.id.toString();
         List<Spell.Modifier> modifiers = new ArrayList<>();
 
-        // Scan the named Curios slot handlers directly. Ars Elemental registers its
-        // Focuses in Curios' dedicated "spell_focus" slot; the flattened handler can
-        // omit slots that are inactive or otherwise not represented in its view.
-        Optional<ICuriosItemHandler> curiosOptional = CuriosApi.getCuriosInventory(player);
-        if (curiosOptional.isEmpty()) {
-            LOGGER.info("No Curios inventory found for player {}", player.getGameProfile().getName());
-            return List.of();
-        }
+        // Scan Curios' named slot handlers reflectively. Curios is an optional
+        // dependency, so this class must not link Curios API types at class-load time.
+        try {
+            Class<?> curiosApi = Class.forName("top.theillusivec4.curios.api.CuriosApi");
+            Method getInventory = curiosApi.getMethod("getCuriosInventory",
+                    net.minecraft.world.entity.LivingEntity.class);
+            Object optionalObject = getInventory.invoke(null, player);
+            if (!(optionalObject instanceof Optional<?> curiosOptional) || curiosOptional.isEmpty()) {
+                LOGGER.info("No Curios inventory found for player {}", player.getGameProfile().getName());
+                return List.of();
+            }
 
-        ICuriosItemHandler curios = curiosOptional.get();
-        LOGGER.info("Curios inventory for {} exposes slot handlers: {}",
-                player.getGameProfile().getName(), curios.getCurios().keySet());
+            Object curios = curiosOptional.get();
+            Object rawHandlers = curios.getClass().getMethod("getCurios").invoke(curios);
+            if (!(rawHandlers instanceof Map<?, ?> handlers)) {
+                LOGGER.warn("Curios returned an unexpected slot-handler map for {}",
+                        player.getGameProfile().getName());
+                return List.of();
+            }
 
-        for (var entry : curios.getCurios().entrySet()) {
-            String slotId = entry.getKey();
-            ICurioStacksHandler slotHandler = entry.getValue();
-            var stacks = slotHandler.getStacks();
-            for (int slot = 0; slot < stacks.getSlots(); slot++) {
-                ItemStack stack = stacks.getStackInSlot(slot);
-                if (stack.isEmpty()) {
+            LOGGER.info("Curios inventory for {} exposes slot handlers: {}",
+                    player.getGameProfile().getName(), handlers.keySet());
+
+            for (var entry : handlers.entrySet()) {
+                String slotId = String.valueOf(entry.getKey());
+                Object slotHandler = entry.getValue();
+                Object rawStacks = slotHandler.getClass().getMethod("getStacks").invoke(slotHandler);
+                if (!(rawStacks instanceof IItemHandler stacks)) {
                     continue;
                 }
 
-                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                LOGGER.info("Curios slot {}[{}] contains {}", slotId, slot, itemId);
-                if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
-                    continue;
-                }
+                for (int slot = 0; slot < stacks.getSlots(); slot++) {
+                    ItemStack stack = stacks.getStackInSlot(slot);
+                    if (stack.isEmpty()) {
+                        continue;
+                    }
 
-                LOGGER.info("Ars Elemental Focus candidate detected in {}[{}]: {}", slotId, slot, itemId);
-                String path = itemId.getPath();
-                if (isNecroticFocus(path)) {
-                    addNecroticModifiers(modifiers, schoolId);
-                    continue;
-                }
+                    ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                    LOGGER.info("Curios slot {}[{}] contains {}", slotId, slot, itemId);
+                    if (itemId == null || !ARS_ELEMENTAL.equals(itemId.getNamespace())) {
+                        continue;
+                    }
 
-                FocusSchool focusSchool = FocusSchool.fromItemPath(path);
-                if (focusSchool == null) {
-                    continue;
-                }
+                    LOGGER.info("Ars Elemental Focus candidate detected in {}[{}]: {}", slotId, slot, itemId);
+                    String path = itemId.getPath();
+                    if (isNecroticFocus(path)) {
+                        addNecroticModifiers(modifiers, schoolId);
+                        continue;
+                    }
 
-                boolean greater = !path.startsWith("lesser_");
-                boolean matching = focusSchool.matches(schoolId);
-                boolean elementalSpell = isElementalSchool(schoolId);
+                    FocusSchool focusSchool = FocusSchool.fromItemPath(path);
+                    if (focusSchool == null) {
+                        continue;
+                    }
 
-                if (matching) {
-                    addElementalModifiers(modifiers, greater ? 2.0F : 1.0F, true);
-                } else if (!greater && elementalSpell) {
-                    // Ars Elemental Lesser Focuses dampen other elemental schools.
-                    addElementalModifiers(modifiers, -1.0F, false);
+                    boolean greater = !path.startsWith("lesser_");
+                    boolean matching = focusSchool.matches(schoolId);
+                    boolean elementalSpell = isElementalSchool(schoolId);
+
+                    if (matching) {
+                        addElementalModifiers(modifiers, greater ? 2.0F : 1.0F, true);
+                    } else if (!greater && elementalSpell) {
+                        addElementalModifiers(modifiers, -1.0F, false);
+                    }
                 }
             }
+        } catch (ClassNotFoundException exception) {
+            LOGGER.info("Curios is not installed; skipping Ars Elemental Focus compatibility");
+        } catch (ReflectiveOperationException exception) {
+            LOGGER.error("Unable to inspect equipped Curios Focuses for {}",
+                    player.getGameProfile().getName(), exception);
         }
         return modifiers;
     }
