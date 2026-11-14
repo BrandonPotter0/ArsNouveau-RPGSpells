@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 /**
- * Keeps Spell Engine's normal ammo result shape for display and integrations,
- * while preventing rune items from being required or consumed.
+ * Returns a satisfied, empty ammo result for rune-based spells so Spell Engine
+ * neither checks nor consumes the original rune item.
  */
 @Mixin(Ammo.class)
 public abstract class AmmoMixin {
