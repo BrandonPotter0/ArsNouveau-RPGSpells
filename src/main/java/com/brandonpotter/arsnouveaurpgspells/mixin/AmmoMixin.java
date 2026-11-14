@@ -31,7 +31,7 @@ public abstract class AmmoMixin {
 
         Ammo.Result original = cir.getReturnValue();
         if (original != null) {
-            cir.setReturnValue(new Ammo.Result(true, original.item(), 0, List.of()));
+            cir.setReturnValue(new Ammo.Result(true, null, 0, List.of()));
         }
     }
 }
