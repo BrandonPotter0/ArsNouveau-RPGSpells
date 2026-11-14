@@ -17,6 +17,15 @@ java {
 }
 
 repositories {
+    mavenCentral()
+    maven {
+        name = "GeckoLib"
+        url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
+    }
+    maven {
+        name = "Illusive Soulworks"
+        url = "https://maven.theillusivec4.top/"
+    }
     maven {
         name = "Jared's Maven"
         url = "https://maven.blamejared.com/"
