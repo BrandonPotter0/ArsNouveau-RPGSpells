@@ -18,7 +18,7 @@ public final class ManaConfig {
 
         BASE_MANA_PER_RUNE = builder
                 .comment("Base Ars Nouveau mana cost for one original RPG Series rune requirement.")
-                .defineInRange("baseManaPerRune", 100, 1, 100000);
+                .defineInRange("baseManaPerRune", 30, 1, 100000);
 
         MANA_MULTIPLIER = builder
                 .comment("Global multiplier applied after scaling the base cost by spell tier.")
