@@ -26,8 +26,21 @@ public final class RuneManaCosts {
         }
 
         String itemId = spell.cost.item.id;
-        return itemId != null
-                && (itemId.startsWith("runes:") || itemId.startsWith("#runes:"));
+        if (itemId == null) {
+            return false;
+        }
+
+        // Wizards RPG Series uses the runes namespace. Elemental Wizards uses
+        // shared-library stone items instead, so those costs must be converted
+        // through the exact same Ars Nouveau mana path as the original runes.
+        return itemId.startsWith("runes:")
+                || itemId.startsWith("#runes:")
+                || itemId.equals("mrpg_lib:terra_stone")
+                || itemId.equals("mrpg_lib:storm_stone")
+                || itemId.equals("mrpg_lib:aqua_stone")
+                || itemId.equals("#mrpg_lib:terra_stone")
+                || itemId.equals("#mrpg_lib:storm_stone")
+                || itemId.equals("#mrpg_lib:aqua_stone");
     }
 
     public static int calculateManaCost(Spell spell) {
