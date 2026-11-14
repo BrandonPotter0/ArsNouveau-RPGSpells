@@ -67,11 +67,30 @@ dependencies {
     // Required gameplay APIs. Their runtime mod dependencies are also declared in neoforge.mods.toml.
     implementation "com.hollingsworth.ars_nouveau:ars_nouveau-1.21.1:${ars_nouveau_version}"
     implementation "maven.modrinth:XvoWJaA2:IYoY9AHA"
+
+    // Mixin is supplied at runtime by NeoForge; this dependency provides compile-time annotations
+    // and the annotation processor that generates the production refmap.
+    compileOnly "org.spongepowered:mixin:0.8.7"
+    annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
 }
+
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir("generated/mixin"))
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 21
+    options.compilerArgs += [
+        "-AoutRefMapFile=${layout.buildDirectory.file('generated/mixin/' + mod_id + '.refmap.json').get().asFile}",
+        "-AdefaultObfuscationEnv=searge"
+    ]
+}
+
+tasks.named("processResources").configure {
+    dependsOn(tasks.named("compileJava"))
+}
+
+jar {
+    manifest.attributes(["MixinConfigs": "${mod_id}.mixins.json"])
 }
 
 processResources {
