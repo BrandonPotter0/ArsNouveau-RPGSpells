@@ -84,8 +84,8 @@ public final class RuneManaCosts {
 
     /**
      * Spell Engine fires this event only after a successful delivery completion.
-     * The Ammo mixin leaves the original rune result intact for tooltips but sets
-     * its consume count to zero, so this is the single mana deduction point.
+     * The Ammo mixin returns a satisfied, empty ammo result, so this is the
+     * single mana deduction point after Spell Engine confirms successful delivery.
      */
     public static void onSpellCostConsume(SpellEvents.SpellCostConsumeEvent.Args args) {
         Spell spell = args.spell().value();
