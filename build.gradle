@@ -67,6 +67,7 @@ dependencies {
     // Required gameplay APIs. Their runtime mod dependencies are also declared in neoforge.mods.toml.
     implementation "com.hollingsworth.ars_nouveau:ars_nouveau-1.21.1:${ars_nouveau_version}"
     implementation "maven.modrinth:XvoWJaA2:IYoY9AHA"
+    compileOnly "maven.modrinth:spell-power:${spell_power_version}-neoforge"
 
     // Mixin is supplied at runtime by NeoForge; this dependency provides compile-time annotations
     // and the annotation processor that generates the production refmap.
