@@ -24,7 +24,7 @@ import java.util.Optional;
  * The integration therefore remains safe to load when Ars Elemental is not installed.
  */
 public final class FocusCompatibility {
-    private static final String ARS_ELEMENTAL = "ars_elemental:";
+    private static final String ARS_ELEMENTAL = "ars_elemental";
     private static final Logger LOGGER = LoggerFactory.getLogger("ArsNouveauRpgSpells/FocusCompat");
 
     private FocusCompatibility() {
