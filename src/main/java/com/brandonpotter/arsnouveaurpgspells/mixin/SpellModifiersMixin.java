@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,7 @@ import java.util.List;
  */
 @Mixin(value = SpellModifiers.class, remap = false)
 public abstract class SpellModifiersMixin {
+    private static final Logger LOGGER = LoggerFactory.getLogger("ArsNouveauRpgSpells/FocusCompat");
     @Inject(
             method = "of(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/core/Holder;)Ljava/util/List;",
             at = @At("RETURN"),
@@ -31,7 +35,9 @@ public abstract class SpellModifiersMixin {
             Holder<Spell> spellEntry,
             CallbackInfoReturnable<List<Spell.Modifier>> cir
     ) {
+        LOGGER.info("Focus modifier hook reached for spell {}", spellEntry.value().school == null ? "<no school>" : spellEntry.value().school.id);
         List<Spell.Modifier> focusModifiers = FocusCompatibility.modifiersFor(player, spellEntry);
+        LOGGER.info("Focus compatibility produced {} modifiers for player {}", focusModifiers.size(), player.getGameProfile().getName());
         if (focusModifiers.isEmpty()) {
             return;
         }
