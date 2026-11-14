@@ -86,7 +86,6 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 21
     options.compilerArgs += [
         "-AoutRefMapFile=${layout.buildDirectory.file('generated/mixin/' + mod_id + '.refmap.json').get().asFile}",
-        "-AdefaultObfuscationEnv=searge"
     ]
 }
 
