@@ -13,11 +13,11 @@ A NeoForge compatibility mod for Minecraft 1.21.1 that replaces RPG Series rune-
 
 ## Cost model
 
-The initial balance target is **100 mana per original rune requirement**, scaled by spell tier:
+The initial balance target is **100 mana per original rune**, scaled by the original rune amount and spell tier:
 
-`manaCost = 100 × (spellTier + 1) × manaMultiplier`
+`manaCost = 100 × runeAmount × (spellTier + 1) × manaMultiplier`
 
-The default multiplier is `1.0`. The multiplier will be configurable.
+The default multiplier is `1.0` and is configurable.
 
 | Spell tier | Default mana cost |
 |---:|---:|
@@ -37,9 +37,19 @@ Cooldowns, cast times, and non-rune costs should remain controlled by Spell Engi
 - Charge mana at the correct successful-cast cost stage and avoid duplicate charges for batched or channelled casts.
 - Preserve existing cooldown, exhaustion, durability, and status-effect costs.
 
-## Development status
+## Implementation
 
-This repository is at the initial project-scaffolding stage. The exact Spell Engine interception point and Ars Nouveau mana capability calls still need to be verified against the selected dependency artifacts before the compatibility implementation is added.
+The first compatibility pass is now in the source tree:
+
+- A pre-cast Spell Engine event checks that the player has enough Ars Nouveau mana.
+- The check leaves Spell Engine's native cooldown handling intact.
+- An `Ammo` mixin bypasses `runes:` item requirements and prevents rune consumption.
+- Spell Engine's successful-cost event removes mana only after successful delivery completion.
+- A client tooltip mixin displays the calculated mana cost and the player's available mana.
+- Creative players are exempt from mana payment.
+- Mana costs are server-configurable through `config/arsnouveau_rpgspells-server.toml`.
+
+The integration is **not yet build- or in-game-verified**. The next milestone is to compile against the pinned NeoForge, Ars Nouveau, and Spell Engine artifacts, fix any mapping/API differences, then test instant, projectile, channeled, and failed-delivery casts on both client and dedicated server.
 
 ## Build
 
