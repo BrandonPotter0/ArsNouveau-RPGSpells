@@ -13,19 +13,19 @@ A NeoForge compatibility mod for Minecraft 1.21.1 that replaces RPG Series rune-
 
 ## Cost model
 
-The initial balance target is **100 mana per original rune**, scaled by the original rune amount and spell tier:
+The default balance target is **30 mana per original rune**, scaled by the original rune amount and spell tier:
 
-`manaCost = 100 × runeAmount × (spellTier + 1) × manaMultiplier`
+`manaCost = 30 × runeAmount × (spellTier + 1) × manaMultiplier`
 
 The default multiplier is `1.0` and is configurable.
 
-| Spell tier | Default mana cost |
+| Spell tier | Default mana cost per rune |
 |---:|---:|
-| 0 | 100 |
-| 1 | 200 |
-| 2 | 300 |
-| 3 | 400 |
-| 4 | 500 |
+| 0 | 30 |
+| 1 | 60 |
+| 2 | 90 |
+| 3 | 120 |
+| 4 | 150 |
 
 Cooldowns, cast times, and non-rune costs should remain controlled by Spell Engine.
 
@@ -49,7 +49,7 @@ The first compatibility pass is now in the source tree:
 - Creative players are exempt from mana payment.
 - Mana costs are server-configurable through `config/arsnouveau_rpgspells-server.toml`.
 
-The integration is **not yet build- or in-game-verified**. The next milestone is to compile against the pinned NeoForge, Ars Nouveau, and Spell Engine artifacts, fix any mapping/API differences, then test instant, projectile, channeled, and failed-delivery casts on both client and dedicated server.
+The project has successfully compiled and has passed an initial in-game test of mana display, insufficient-mana blocking, and spell casting. Broader compatibility testing is still needed for instant, projectile, channeled, and failed-delivery casts on both client and dedicated server.
 
 ## Build
 
@@ -65,4 +65,4 @@ On Windows:
 gradlew.bat build
 ```
 
-The next milestone is build validation, followed by in-game testing against both Wizards and Elemental Wizards. See [the testing checklist](docs/testing-checklist.md) for the first validation pass.
+See [the testing checklist](docs/testing-checklist.md) for the next validation pass.
