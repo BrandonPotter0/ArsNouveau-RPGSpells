@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.brandonpotter.arsnouveaurpgspells.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "arsnouveau_rpgspells.refmap.json",
+  "mixins": [
+    "AmmoMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
