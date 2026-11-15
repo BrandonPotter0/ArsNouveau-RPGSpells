@@ -2,6 +2,7 @@ package com.brandonpotter.arsnouveaurpgspells;
 
 import com.brandonpotter.arsnouveaurpgspells.config.ManaConfig;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.DamageDiagnostics;
+import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.ArsSelfSpellDamageFinalizer;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.ShockedDamageProtection;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.SpellPowerCompatibility;
 import com.brandonpotter.arsnouveaurpgspells.mana.RuneManaCosts;
@@ -30,6 +31,7 @@ public final class ArsNouveauRpgSpells {
         // when a player is hit by Ars Nouveau's Lightning glyph.
         NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ShockedDamageProtection::onDamagePre);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ArsSelfSpellDamageFinalizer::onDamagePre);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, DamageDiagnostics::onDamagePreHighest);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, DamageDiagnostics::onDamagePreHigh);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, DamageDiagnostics::onDamagePreNormal);
