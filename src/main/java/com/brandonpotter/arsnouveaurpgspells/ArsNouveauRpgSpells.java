@@ -30,6 +30,7 @@ public final class ArsNouveauRpgSpells {
         // when a player is hit by Ars Nouveau's Lightning glyph.
         NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ShockedDamageProtection::onDamagePre);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, DamageDiagnostics::onDamagePreHighest);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, DamageDiagnostics::onDamagePre);
         NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onDamagePost);
     }
