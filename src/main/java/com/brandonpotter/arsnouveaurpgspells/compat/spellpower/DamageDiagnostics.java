@@ -55,7 +55,7 @@ public final class DamageDiagnostics {
         DamageSource source = event.getSource();
         DamageContainer container = event.getContainer();
         LOGGER.info(
-                "[ArsNouveauRpgSpells DamageDebug] FINAL player={} type={} isMagic={} bypassesEnchantments={} original={} armorReduction={} enchantmentReduction={} mobEffectReduction={} absorptionReduction={} afterMitigation={} armorLevels=[head:{},chest:{},legs:{},feet:{}]",
+                "[ArsNouveauRpgSpells DamageDebug] PRE player={} type={} isMagic={} bypassesEnchantments={} original={} armorReduction={} enchantmentReduction={} mobEffectReduction={} absorptionReduction={} preEventDamage={} armorEnchantEntries=[head:{},chest:{},legs:{},feet:{}]",
                 player.getGameProfile().getName(),
                 damageTypeId(source),
                 source.is(IS_MAGIC),
@@ -70,6 +70,29 @@ public final class DamageDiagnostics {
                 player.getItemBySlot(EquipmentSlot.CHEST).getEnchantments().size(),
                 player.getItemBySlot(EquipmentSlot.LEGS).getEnchantments().size(),
                 player.getItemBySlot(EquipmentSlot.FEET).getEnchantments().size()
+        );
+    }
+
+
+    public static void onDamagePost(LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) {
+            return;
+        }
+
+        DamageSource source = event.getSource();
+        LOGGER.info(
+                "[ArsNouveauRpgSpells DamageDebug] POST player={} type={} isMagic={} bypassesEnchantments={} original={} actualHealthLost={} armorReduction={} enchantmentReduction={} mobEffectReduction={} absorptionReduction={} blockedDamage={}",
+                player.getGameProfile().getName(),
+                damageTypeId(source),
+                source.is(IS_MAGIC),
+                source.is(DamageTypeTags.BYPASSES_ENCHANTMENTS),
+                event.getOriginalDamage(),
+                event.getNewDamage(),
+                event.getReduction(DamageContainer.Reduction.ARMOR),
+                event.getReduction(DamageContainer.Reduction.ENCHANTMENTS),
+                event.getReduction(DamageContainer.Reduction.MOB_EFFECTS),
+                event.getReduction(DamageContainer.Reduction.ABSORPTION),
+                event.getBlockedDamage()
         );
     }
 
