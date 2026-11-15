@@ -1,15 +1,20 @@
 package com.brandonpotter.arsnouveaurpgspells.compat.spellpower;
 
 import com.hollingsworth.arsnouveau.api.event.SpellDamageEvent;
+import com.hollingsworth.arsnouveau.api.perk.PerkAttributes;
 import com.hollingsworth.arsnouveau.api.spell.AbstractSpellPart;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bridges Spell Power Attributes into Ars Nouveau spell damage.
  */
 public final class SpellPowerCompatibility {
+    private static final Logger LOGGER = LoggerFactory.getLogger("arsnouveau_rpgspells/SpellPowerCompatibility");
+
     private SpellPowerCompatibility() {
     }
 
@@ -28,6 +33,11 @@ public final class SpellPowerCompatibility {
                 || event.damageSource.is(DamageTypes.STALAGMITE)) {
             return;
         }
+
+        float damageBeforeSpellPower = event.damage;
+        double spellDamageBonus = event.caster.getAttributes().hasAttribute(PerkAttributes.SPELL_DAMAGE_BONUS)
+                ? event.caster.getAttributeValue(PerkAttributes.SPELL_DAMAGE_BONUS)
+                : 0.0D;
 
         net.spell_power.api.SpellSchool powerSchool = SpellSchools.GENERIC;
         int activePartIndex = event.context.getCurrentIndex() - 1;
@@ -82,6 +92,16 @@ public final class SpellPowerCompatibility {
         double multiplier = spellPower / baseline;
 
         if (Double.isFinite(multiplier) && multiplier > 0.0D) {
+            LOGGER.info(
+                    "Ars spell damage diagnostic: school={}, damageBeforeSpellPower={}, spellPower={}, baseline={}, multiplier={}, spellDamageBonus={}, damageAfterSpellPower={}",
+                    powerSchool.id,
+                    damageBeforeSpellPower,
+                    spellPower,
+                    baseline,
+                    multiplier,
+                    spellDamageBonus,
+                    damageBeforeSpellPower * multiplier
+            );
             event.damage = (float) (event.damage * multiplier);
         }
     }
