@@ -65,9 +65,17 @@ public final class SpellPowerCompatibility {
             if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_FIRE)) {
                 powerSchool = SpellSchools.FIRE;
             } else if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_AIR)) {
-                powerSchool = SpellSchools.AIR;
+                // Air and Water are registered by More RPG Library, not Spell Power itself.
+                // Resolve them by ID so this mod does not need a compile-time MRPG dependency.
+                var airSchool = SpellSchools.getSchool("spell_power:air");
+                if (airSchool != null) {
+                    powerSchool = airSchool;
+                }
             } else if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_WATER)) {
-                powerSchool = SpellSchools.WATER;
+                var waterSchool = SpellSchools.getSchool("spell_power:water");
+                if (waterSchool != null) {
+                    powerSchool = waterSchool;
+                }
             } else if (!hasElementalSchool && hasNecromancySchool) {
                 powerSchool = SpellSchools.SOUL;
             } else if (!hasElementalSchool && hasArcaneSchool) {
