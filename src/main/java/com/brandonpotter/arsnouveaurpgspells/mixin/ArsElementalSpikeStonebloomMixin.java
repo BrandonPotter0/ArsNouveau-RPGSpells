@@ -1,12 +1,12 @@
 package com.brandonpotter.arsnouveaurpgspells.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.LivingEntity;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchool;
 import net.spell_power.api.SpellSchools;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -21,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(targets = "alexthw.ars_elemental.common.entity.spikes.DripstoneSpikeEntity", remap = false)
 public abstract class ArsElementalSpikeStonebloomMixin {
 
+    @Shadow
+    private LivingEntity caster;
+
     @ModifyArg(
             method = "damage",
             at = @At(
@@ -30,11 +33,8 @@ public abstract class ArsElementalSpikeStonebloomMixin {
             index = 7,
             remap = false
     )
-    private float arsnouveauRpgSpells$applyStonebloomToSpike(
-            float damage,
-            @Local(argsOnly = true, ordinal = 0) LivingEntity caster
-    ) {
-        if (caster.level().isClientSide || damage <= 0.0F) {
+    private float arsnouveauRpgSpells$applyStonebloomToSpike(float damage) {
+        if (caster == null || caster.level().isClientSide || damage <= 0.0F) {
             return damage;
         }
 
