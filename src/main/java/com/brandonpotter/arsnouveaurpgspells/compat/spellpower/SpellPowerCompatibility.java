@@ -1,6 +1,7 @@
 package com.brandonpotter.arsnouveaurpgspells.compat.spellpower;
 
 import com.hollingsworth.arsnouveau.api.event.SpellDamageEvent;
+import com.hollingsworth.arsnouveau.api.perk.PerkAttributes;
 import com.hollingsworth.arsnouveau.api.spell.AbstractSpellPart;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.spell_power.api.SpellPower;
@@ -82,7 +83,16 @@ public final class SpellPowerCompatibility {
         double multiplier = spellPower / baseline;
 
         if (Double.isFinite(multiplier) && multiplier > 0.0D) {
-            event.damage = (float) (event.damage * multiplier);
+            // Ars Nouveau adds SPELL_DAMAGE_BONUS (including Thread of Spell
+            // Power) before posting this event. Keep that flat bonus outside
+            // Spell Power scaling so the two bonuses stack additively.
+            double flatSpellDamageBonus = event.caster.getAttributes()
+                    .hasAttribute(PerkAttributes.SPELL_DAMAGE_BONUS)
+                    ? event.caster.getAttributeValue(PerkAttributes.SPELL_DAMAGE_BONUS)
+                    : 0.0D;
+            double damageBeforeFlatBonus = event.damage - flatSpellDamageBonus;
+
+            event.damage = (float) (damageBeforeFlatBonus * multiplier + flatSpellDamageBonus);
         }
     }
 }
