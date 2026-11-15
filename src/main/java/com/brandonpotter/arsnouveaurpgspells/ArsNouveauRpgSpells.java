@@ -1,6 +1,7 @@
 package com.brandonpotter.arsnouveaurpgspells;
 
 import com.brandonpotter.arsnouveaurpgspells.config.ManaConfig;
+import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.DamageDiagnostics;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.SpellPowerCompatibility;
 import com.brandonpotter.arsnouveaurpgspells.mana.RuneManaCosts;
 import net.spell_engine.api.spell.event.SpellEvents;
@@ -22,5 +23,10 @@ public final class ArsNouveauRpgSpells {
         SpellEvents.CASTING_ATTEMPT.PRE.register(RuneManaCosts::onCastingAttempt);
         SpellEvents.COST_CONSUME.register(RuneManaCosts::onSpellCostConsume);
         NeoForge.EVENT_BUS.addListener(SpellPowerCompatibility::onArsSpellDamage);
+
+        // Temporary diagnostics for identifying the damage source and mitigation result
+        // when a player is hit by Ars Nouveau's Lightning glyph.
+        NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onIncomingDamage);
+        NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onDamagePre);
     }
 }
