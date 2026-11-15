@@ -65,6 +65,35 @@ public final class DamageDiagnostics {
         );
     }
 
+
+    public static void onDamagePreHigh(LivingDamageEvent.Pre event) {
+        logDamageAtPriority(event, "PRE_HIGH");
+    }
+
+    public static void onDamagePreNormal(LivingDamageEvent.Pre event) {
+        logDamageAtPriority(event, "PRE_NORMAL");
+    }
+
+    public static void onDamagePreLow(LivingDamageEvent.Pre event) {
+        logDamageAtPriority(event, "PRE_LOW");
+    }
+
+    private static void logDamageAtPriority(LivingDamageEvent.Pre event, String priority) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) {
+            return;
+        }
+        DamageContainer container = event.getContainer();
+        LOGGER.info(
+                "[ArsNouveauRpgSpells DamageDebug] {} player={} type={} current={} armorReduction={} enchantmentReduction={}",
+                priority,
+                player.getGameProfile().getName(),
+                damageTypeId(event.getSource()),
+                event.getNewDamage(),
+                container.getReduction(DamageContainer.Reduction.ARMOR),
+                container.getReduction(DamageContainer.Reduction.ENCHANTMENTS)
+        );
+    }
+
     public static void onDamagePre(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) {
             return;
