@@ -6,6 +6,7 @@
   "refmap": "arsnouveau_rpgspells.refmap.json",
   "mixins": [
     "AmmoMixin",
+    "EnchantingInfuserMixin",
     "SpellModifiersMixin"
   ],
   "injectors": {
