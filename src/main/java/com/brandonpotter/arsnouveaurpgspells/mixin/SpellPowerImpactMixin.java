@@ -2,42 +2,52 @@ package com.brandonpotter.arsnouveaurpgspells.mixin;
 
 import com.hollingsworth.arsnouveau.api.util.PerkUtil;
 import com.hollingsworth.arsnouveau.common.perk.SpellDamagePerk;
+import com.hollingsworth.arsnouveau.common.perk.VampiricPerk;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.internals.impact.SpellImpacts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /**
- * Applies Ars Nouveau's Spell Power armor thread to the final RPG spell damage
- * and healing amounts immediately before Spell Engine applies them.
+ * Applies Ars Nouveau armor-thread bonuses to RPG spell damage and healing.
  */
 @Mixin(value = SpellImpacts.class, remap = false)
 public abstract class SpellPowerImpactMixin {
 
-    @ModifyArg(
+    @Redirect(
             method = "performImpact",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
-            ),
-            index = 1
+            )
     )
-    private static float arsnouveauRpgSpells$addArmorSpellPowerThreadToDamage(
+    private static boolean arsnouveauRpgSpells$applyDamageThreads(
+            Entity target,
+            DamageSource source,
             float damage,
             @Local(argsOnly = true, ordinal = 0) LivingEntity caster
     ) {
         if (caster.level().isClientSide || damage <= 0.0F) {
-            return damage;
+            return target.hurt(source, damage);
         }
 
-        int perkLevel = PerkUtil.countForPerk(SpellDamagePerk.INSTANCE, caster);
-        if (perkLevel <= 0) {
-            return damage;
+        int spellPowerLevel = PerkUtil.countForPerk(SpellDamagePerk.INSTANCE, caster);
+        float adjustedDamage = damage + (2.0F * spellPowerLevel);
+        boolean successfulHit = target.hurt(source, adjustedDamage);
+
+        if (successfulHit) {
+            int lifeDrainLevel = PerkUtil.countForPerk(VampiricPerk.INSTANCE, caster);
+            if (lifeDrainLevel > 0) {
+                caster.heal(adjustedDamage * 0.2F * lifeDrainLevel);
+            }
         }
 
-        return damage + (2.0F * perkLevel);
+        return successfulHit;
     }
 
     @ModifyArg(
