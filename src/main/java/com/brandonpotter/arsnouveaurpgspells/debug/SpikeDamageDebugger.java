@@ -48,7 +48,7 @@ public final class SpikeDamageDebugger {
         }
 
         LOGGER.info(
-                "[SpikeDebug] SpellDamageEvent.Pre LOWEST | caster={} | target={} | damage={} | canceled={}",
+                "[SpikeDebug] SpellDamageEvent.Pre LOWEST | caster={} | target={} | damage={}",
                 name(event.caster),
                 name(event.target),
                 event.damage
