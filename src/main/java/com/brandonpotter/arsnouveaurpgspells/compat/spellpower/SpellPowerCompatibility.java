@@ -17,11 +17,9 @@ public final class SpellPowerCompatibility {
     }
 
     /**
-     * Maps Ars Nouveau's Necromancy school to Soul Spell Power, its other
-     * non-elemental schools to Arcane, and elemental schools to their matching
-     * Spell Power schools as those integrations are implemented. Elemental
-     * schools take priority if a glyph belongs to both elemental and
-     * non-elemental Ars Nouveau schools.
+     * Maps Ars Nouveau's elemental schools to their matching Spell Power
+     * schools. This allows school-specific attributes and enchantments,
+     * including Typhoon's Air and Water bonuses, to affect Ars Nouveau damage.
      *
      * SpellContext advances its current index immediately before resolving each
      * spell part, so currentIndex - 1 identifies the part currently producing
@@ -66,6 +64,10 @@ public final class SpellPowerCompatibility {
 
             if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_FIRE)) {
                 powerSchool = SpellSchools.FIRE;
+            } else if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_AIR)) {
+                powerSchool = SpellSchools.AIR;
+            } else if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_WATER)) {
+                powerSchool = SpellSchools.WATER;
             } else if (!hasElementalSchool && hasNecromancySchool) {
                 powerSchool = SpellSchools.SOUL;
             } else if (!hasElementalSchool && hasArcaneSchool) {
