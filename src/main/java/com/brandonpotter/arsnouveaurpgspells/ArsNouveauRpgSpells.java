@@ -1,7 +1,6 @@
 package com.brandonpotter.arsnouveaurpgspells;
 
 import com.brandonpotter.arsnouveaurpgspells.config.ManaConfig;
-import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.DamageDiagnostics;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.ArsSelfSpellDamageFinalizer;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.ShockedDamageProtection;
 import com.brandonpotter.arsnouveaurpgspells.compat.spellpower.SpellPowerCompatibility;
@@ -9,6 +8,7 @@ import com.brandonpotter.arsnouveaurpgspells.mana.RuneManaCosts;
 import net.spell_engine.api.spell.event.SpellEvents;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -27,16 +27,13 @@ public final class ArsNouveauRpgSpells {
         SpellEvents.COST_CONSUME.register(RuneManaCosts::onSpellCostConsume);
         NeoForge.EVENT_BUS.addListener(SpellPowerCompatibility::onArsSpellDamage);
 
-        // Temporary diagnostics for identifying the damage source and mitigation result
-        // when a player is hit by Ars Nouveau's Lightning glyph.
-        NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ShockedDamageProtection::onDamagePre);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ArsSelfSpellDamageFinalizer::onDamagePre);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, DamageDiagnostics::onDamagePreHighest);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, DamageDiagnostics::onDamagePreHigh);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, DamageDiagnostics::onDamagePreNormal);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, DamageDiagnostics::onDamagePreLow);
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, DamageDiagnostics::onDamagePre);
-        NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onDamagePost);
+
+        // Lodestone can restore the original damage after NeoForge has applied
+        // enchantment reductions. Only install the corrective safeguard when
+        // Lodestone is present; otherwise the normal damage pipeline is correct.
+        if (ModList.get().isLoaded("lodestone")) {
+            NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ArsSelfSpellDamageFinalizer::onDamagePre);
+        }
     }
 }
