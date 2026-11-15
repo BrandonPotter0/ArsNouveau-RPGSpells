@@ -2,6 +2,7 @@ package com.brandonpotter.arsnouveaurpgspells.compat.spellpower;
 
 import com.hollingsworth.arsnouveau.api.event.SpellDamageEvent;
 import com.hollingsworth.arsnouveau.api.spell.AbstractSpellPart;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.spell_power.api.SpellPower;
 import net.spell_power.api.SpellSchools;
 
@@ -27,7 +28,12 @@ public final class SpellPowerCompatibility {
      * the damage event.
      */
     public static void onArsSpellDamage(SpellDamageEvent.Pre event) {
-        if (event.caster.level().isClientSide || event.damage <= 0.0F) {
+        if (event.caster.level().isClientSide
+                || event.damage <= 0.0F
+                // Ars Elemental's Spike uses stalagmite damage and already supplies
+                // its own configured damage value. It must not receive generic
+                // Ars Nouveau Spell Power scaling from this compatibility listener.
+                || event.damageSource.is(DamageTypes.STALAGMITE)) {
             return;
         }
 
