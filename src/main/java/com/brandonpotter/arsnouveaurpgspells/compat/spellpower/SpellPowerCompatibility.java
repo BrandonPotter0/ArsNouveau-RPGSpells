@@ -10,9 +10,6 @@ import org.slf4j.Logger;
 
 /**
  * Bridges Spell Power Attributes into Ars Nouveau spell damage.
- *
- * RPG spell damage is handled at Spell Engine's impact call site by
- * SpellPowerImpactMixin, where the caster and raw damage amount are both available.
  */
 public final class SpellPowerCompatibility {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -22,8 +19,8 @@ public final class SpellPowerCompatibility {
 
     /**
      * Maps Ars Nouveau's elemental schools to their matching Spell Power
-     * schools. This allows school-specific attributes and enchantments,
-     * including Typhoon's Air and Water bonuses, to affect Ars Nouveau damage.
+     * schools, allowing school-specific attributes and enchantments to affect
+     * Ars Nouveau damage.
      *
      * SpellContext advances its current index immediately before resolving each
      * spell part, so currentIndex - 1 identifies the part currently producing
@@ -32,22 +29,13 @@ public final class SpellPowerCompatibility {
     public static void onArsSpellDamage(SpellDamageEvent.Pre event) {
         if (event.caster.level().isClientSide
                 || event.damage <= 0.0F
-                // Ars Elemental's Spike uses stalagmite damage and already supplies
-                // its own configured damage value. It must not receive generic
-                // Ars Nouveau Spell Power scaling from this compatibility listener.
                 || event.damageSource.is(DamageTypes.STALAGMITE)) {
-            return;
-        }
-
-        double baseline = SpellSchools.GENERIC.attributeBaseValue();
-        if (baseline <= 0.0D) {
             return;
         }
 
         net.spell_power.api.SpellSchool powerSchool = SpellSchools.GENERIC;
         AbstractSpellPart activePart = null;
-        int currentIndex = event.context.getCurrentIndex();
-        int activePartIndex = currentIndex - 1;
+        int activePartIndex = event.context.getCurrentIndex() - 1;
 
         if (activePartIndex >= 0 && activePartIndex < event.context.getSpell().size()) {
             activePart = event.context.getSpell().get(activePartIndex);
@@ -71,7 +59,6 @@ public final class SpellPowerCompatibility {
                 powerSchool = SpellSchools.FIRE;
             } else if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_AIR)) {
                 // Air and Water are registered by More RPG Library, not Spell Power itself.
-                // Resolve them by ID so this mod does not need a compile-time MRPG dependency.
                 var airSchool = SpellSchools.getSchool("spell_power:air");
                 if (airSchool != null) {
                     powerSchool = airSchool;
@@ -88,30 +75,38 @@ public final class SpellPowerCompatibility {
             }
         }
 
+        // Each Spell Power school can use a different attribute scale.
+        // Compare against the selected school's own default, not Generic's
+        // default (100), otherwise Air/Water values near 1 become ~1% damage.
+        double baseline = powerSchool.attributeBaseValue();
+        if (baseline <= 0.0D) {
+            return;
+        }
+
         double spellPower = SpellPower.getSpellPower(powerSchool, event.caster).baseValue();
         double multiplier = spellPower / baseline;
         float damageBefore = event.damage;
+        double damageAfter = Double.isFinite(multiplier) && multiplier > 0.0D
+                ? damageBefore * multiplier
+                : damageBefore;
 
-        // Temporary focused diagnostics for Wind Shear. These report the exact
-        // glyph school, selected Spell Power school, attribute values, and damage
-        // multiplier so we can identify why its damage changes with this mod.
+        // Temporary focused diagnostics for Wind Shear; remove after validation.
         if (activePart != null && activePart.getClass().getSimpleName().toLowerCase().contains("windshear")) {
             LOGGER.info(
-                    "[Ars Nouveau RPG Spells][Wind Shear Diagnostic] glyph={}, arsSchools={}, damageType={}, selectedSchool={}, schoolPower={}, genericBaseline={}, multiplier={}, damageBefore={}, damageAfter={}",
+                    "[Ars Nouveau RPG Spells][Wind Shear Diagnostic] glyph={}, damageType={}, selectedSchool={}, schoolPower={}, schoolBaseline={}, multiplier={}, damageBefore={}, damageAfter={}",
                     activePart.getClass().getSimpleName(),
-                    activePart.spellSchools,
                     event.damageSource.typeHolder().unwrapKey().map(key -> key.location().toString()).orElse("unknown"),
                     powerSchool.id,
                     spellPower,
                     baseline,
                     multiplier,
                     damageBefore,
-                    Double.isFinite(multiplier) && multiplier > 0.0D ? damageBefore * multiplier : damageBefore
+                    damageAfter
             );
         }
 
         if (Double.isFinite(multiplier) && multiplier > 0.0D) {
-            event.damage = (float) (event.damage * multiplier);
+            event.damage = (float) damageAfter;
         }
     }
 }
