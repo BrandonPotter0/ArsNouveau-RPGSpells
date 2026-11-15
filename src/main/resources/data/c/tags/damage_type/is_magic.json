@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "minecraft:lightning_bolt"
+    "minecraft:lightning_bolt",
+    "ars_nouveau:spell"
   ]
 }
