@@ -9,7 +9,7 @@
     "EnchantingInfuserMixin",
     "SpellModifiersMixin",
     "SpellPowerImpactMixin",
-    "ArsLightningSpellPowerMixin",
+    "ArsLightningSpellPowerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
