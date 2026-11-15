@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /**
- * Applies Spell Power's Healing school to Ars Nouveau's direct healing effect.
+ * Applies Spell Power's Healing school to Ars Nouveau's direct Heal glyph.
  */
 @Mixin(value = EffectHeal.class, remap = false)
 public abstract class ArsHealingSpellPowerMixin {
@@ -21,13 +21,14 @@ public abstract class ArsHealingSpellPowerMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;heal(F)V"
             ),
-            index = 0
+            index = 0,
+            remap = false
     )
     private float arsnouveauRpgSpells$applyHealingSpellPower(
             float amount,
-            @Local(argsOnly = true, ordinal = 0) LivingEntity caster
+            @Local(argsOnly = true, ordinal = 0) LivingEntity shooter
     ) {
-        if (caster.level().isClientSide || amount <= 0.0F) {
+        if (shooter.level().isClientSide || amount <= 0.0F) {
             return amount;
         }
 
@@ -36,7 +37,7 @@ public abstract class ArsHealingSpellPowerMixin {
             return amount;
         }
 
-        double healingPower = SpellPower.getSpellPower(SpellSchools.HEALING, caster).baseValue();
+        double healingPower = SpellPower.getSpellPower(SpellSchools.HEALING, shooter).baseValue();
         double multiplier = healingPower / baseline;
         if (Double.isFinite(multiplier) && multiplier > 0.0D) {
             return (float) (amount * multiplier);
