@@ -6,7 +6,13 @@
   "refmap": "arsnouveau_rpgspells.refmap.json",
   "mixins": [
     "AmmoMixin",
-    "SpellModifiersMixin"
+    "EnchantingInfuserMixin",
+    "SpellModifiersMixin",
+    "SpellPowerImpactMixin",
+    "ArsLightningSpellPowerMixin",
+    "ArsHealingSpellPowerMixin",
+    "ArsElementalSpikeStonebloomMixin",
+    "ArsDamageSelfTargetMixin"
   ],
   "injectors": {
     "defaultRequire": 1
