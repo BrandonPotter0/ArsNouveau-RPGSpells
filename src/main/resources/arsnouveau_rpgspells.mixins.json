@@ -10,7 +10,7 @@
     "SpellModifiersMixin",
     "SpellPowerImpactMixin",
     "ArsLightningSpellPowerMixin",
-    "ArsHealingSpellPowerMixin",
+    "ArsHealingSpellPowerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
