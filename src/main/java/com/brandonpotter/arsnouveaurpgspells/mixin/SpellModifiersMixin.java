@@ -35,9 +35,7 @@ public abstract class SpellModifiersMixin {
             Holder<Spell> spellEntry,
             CallbackInfoReturnable<List<Spell.Modifier>> cir
     ) {
-        LOGGER.info("Focus modifier hook reached for spell {}", spellEntry.value().school == null ? "<no school>" : spellEntry.value().school.id);
         List<Spell.Modifier> focusModifiers = FocusCompatibility.modifiersFor(player, spellEntry);
-        LOGGER.info("Focus compatibility produced {} modifiers for player {}", focusModifiers.size(), player.getGameProfile().getName());
         if (focusModifiers.isEmpty()) {
             return;
         }
