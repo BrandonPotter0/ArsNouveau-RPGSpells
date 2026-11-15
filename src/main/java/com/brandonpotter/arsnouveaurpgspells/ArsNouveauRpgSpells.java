@@ -31,6 +31,9 @@ public final class ArsNouveauRpgSpells {
         NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ShockedDamageProtection::onDamagePre);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, DamageDiagnostics::onDamagePreHighest);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, DamageDiagnostics::onDamagePreHigh);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, DamageDiagnostics::onDamagePreNormal);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, DamageDiagnostics::onDamagePreLow);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, DamageDiagnostics::onDamagePre);
         NeoForge.EVENT_BUS.addListener(DamageDiagnostics::onDamagePost);
     }
