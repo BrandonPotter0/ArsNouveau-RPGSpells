@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/enchantment-perk ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
