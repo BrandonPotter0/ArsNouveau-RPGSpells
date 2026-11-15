@@ -47,6 +47,24 @@ public final class DamageDiagnostics {
         );
     }
 
+
+    public static void onDamagePreHighest(LivingDamageEvent.Pre event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) {
+            return;
+        }
+
+        DamageContainer container = event.getContainer();
+        LOGGER.info(
+                "[ArsNouveauRpgSpells DamageDebug] PRE_HIGHEST player={} type={} original={} current={} armorReduction={} enchantmentReduction={}",
+                player.getGameProfile().getName(),
+                damageTypeId(event.getSource()),
+                event.getOriginalDamage(),
+                event.getNewDamage(),
+                container.getReduction(DamageContainer.Reduction.ARMOR),
+                container.getReduction(DamageContainer.Reduction.ENCHANTMENTS)
+        );
+    }
+
     public static void onDamagePre(LivingDamageEvent.Pre event) {
         if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) {
             return;
