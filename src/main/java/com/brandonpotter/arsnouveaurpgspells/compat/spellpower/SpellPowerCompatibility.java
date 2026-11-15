@@ -1,7 +1,6 @@
 package com.brandonpotter.arsnouveaurpgspells.compat.spellpower;
 
 import com.hollingsworth.arsnouveau.api.event.SpellDamageEvent;
-import com.hollingsworth.arsnouveau.api.perk.PerkAttributes;
 import com.hollingsworth.arsnouveau.api.spell.AbstractSpellPart;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.spell_power.api.SpellPower;
