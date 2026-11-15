@@ -1,7 +1,6 @@
 package com.brandonpotter.arsnouveaurpgspells.mixin;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -46,8 +45,9 @@ public abstract class ArsElementalSpikeStonebloomMixin {
             return damage;
         }
 
-        Holder<Enchantment> stonebloom = BuiltInRegistries.ENCHANTMENT
-                .getHolder(STONEBLOOM)
+        Holder<Enchantment> stonebloom = caster.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .get(STONEBLOOM)
                 .orElse(null);
         if (stonebloom == null) {
             return damage;
