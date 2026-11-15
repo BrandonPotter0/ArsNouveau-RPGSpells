@@ -12,8 +12,7 @@
     "ArsLightningSpellPowerMixin",
     "ArsHealingSpellPowerMixin",
     "ArsElementalSpikeStonebloomMixin",
-    "ArsDamageSelfTargetMixin",
-    "DamageContainerTraceMixin"
+    "ArsDamageSelfTargetMixin"
   ],
   "injectors": {
     "defaultRequire": 1
