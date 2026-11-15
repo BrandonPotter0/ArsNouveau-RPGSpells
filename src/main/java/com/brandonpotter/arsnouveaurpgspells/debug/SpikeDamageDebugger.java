@@ -51,8 +51,7 @@ public final class SpikeDamageDebugger {
                 "[SpikeDebug] SpellDamageEvent.Pre LOWEST | caster={} | target={} | damage={} | canceled={}",
                 name(event.caster),
                 name(event.target),
-                event.damage,
-                event.isCanceled()
+                event.damage
         );
     }
 
@@ -112,6 +111,25 @@ public final class SpikeDamageDebugger {
                 name(event.getEntity()),
                 event.getEntity().getHealth(),
                 event.getNewDamage()
+        );
+    }
+
+
+    @SubscribeEvent
+    public static void onDamagePost(LivingDamageEvent.Post event) {
+        if (!isStalagmite(event.getSource()) || event.getEntity().level().isClientSide) {
+            return;
+        }
+
+        LOGGER.info(
+                "[SpikeDebug] LivingDamageEvent.Post | target={} | healthAfter={} | originalDamage={} | appliedDamage={} | armorReduction={} | enchantmentReduction={} | resistanceReduction={}",
+                name(event.getEntity()),
+                event.getEntity().getHealth(),
+                event.getOriginalDamage(),
+                event.getNewDamage(),
+                event.getReduction(net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ARMOR),
+                event.getReduction(net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ENCHANTMENTS),
+                event.getReduction(net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.MOB_EFFECTS)
         );
     }
 
