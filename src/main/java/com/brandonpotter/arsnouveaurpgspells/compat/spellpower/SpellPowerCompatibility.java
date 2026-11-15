@@ -16,8 +16,11 @@ public final class SpellPowerCompatibility {
     }
 
     /**
-     * Applies generic Spell Power to all Ars Nouveau spell damage and the Fire
-     * school value to damage caused by an Ars Nouveau Fire-school glyph.
+     * Applies generic Spell Power to Ars Nouveau elemental damage when no
+     * matching school bridge exists yet. Non-elemental Ars Nouveau glyphs use
+     * Arcane as their neutral Spell Power school. Elemental schools take
+     * priority when a glyph belongs to both an elemental and non-elemental
+     * Ars Nouveau school.
      *
      * SpellContext advances its current index immediately before resolving each
      * spell part, so currentIndex - 1 identifies the part currently producing
@@ -39,8 +42,18 @@ public final class SpellPowerCompatibility {
 
         if (activePartIndex >= 0 && activePartIndex < event.context.getSpell().size()) {
             AbstractSpellPart activePart = event.context.getSpell().get(activePartIndex);
-            if (activePart.spellSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_FIRE)) {
+            var arsSchools = activePart.spellSchools;
+
+            boolean hasElementalSchool =
+                    arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_AIR)
+                    || arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_EARTH)
+                    || arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_FIRE)
+                    || arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_WATER);
+
+            if (arsSchools.contains(com.hollingsworth.arsnouveau.api.spell.SpellSchools.ELEMENTAL_FIRE)) {
                 powerSchool = SpellSchools.FIRE;
+            } else if (!hasElementalSchool) {
+                powerSchool = SpellSchools.ARCANE;
             }
         }
 
