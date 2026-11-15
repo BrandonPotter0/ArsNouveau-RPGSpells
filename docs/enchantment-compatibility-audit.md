@@ -49,6 +49,25 @@ Spell Engine 1.10.9 registers `spell_engine:spell_infinity` as a mainhand enchan
 
 The project requirement is to keep the enchantment registered and command-usable while removing normal survival acquisition. The exact vanilla/NeoForge acquisition hooks still need to be confirmed before implementation. Mana charging must remain active even when Spell Infinity is present.
 
+## Confirmed native defensive compatibility
+
+Two defensive mechanics do not need a custom RPG-spell bridge:
+
+- **Ars Nouveau Warding** already works against RPG spell damage. Ars Nouveau's 1.21.x `EventHandler.entityHurt` subtracts the wearer's `PerkAttributes.WARDING` value from damage tagged `c:is_magic`. Spell Power's `c:is_magic` tag includes the `#spell_power:all` damage types, and Spell Engine creates RPG spell damage sources using the relevant Spell Power school damage type. Warding is therefore already applied by Ars Nouveau's own event handler.
+- **Spell Power Magic Protection** already applies to RPG spell damage. Its enchantment effect checks `c:is_magic` and excludes damage bypassing invulnerability. RPG spell school damage types are included in `c:is_magic`, so a second custom reduction would double-dip.
+
+These findings are based on the exact Ars Nouveau 1.21.x source, Spell Engine 1.21.1 source, and Spell Power 1.6.0 JAR resources. No extra compatibility modifier should be added for either feature.
+
+## Spell Infinity survival-acquisition restriction
+
+The compatibility branch now removes `spell_engine:spell_infinity` from the vanilla enchantment tags used for:
+- Enchanting-table availability (`minecraft:in_enchanting_table`)
+- Villager trading (`minecraft:tradeable`)
+- Random loot (`minecraft:on_random_loot`)
+- Mob equipment generation (`minecraft:on_mob_spawn_equipment`)
+
+The enchantment itself remains registered and its supported-item definition is untouched. This intentionally preserves command-based application and use. The existing mana-cost checks remain independent of rune-ammo consumption, so Spell Infinity must not make rune-based RPG spells free of Ars Nouveau mana.
+
 ## Next implementation/research steps
 
 1. Verify Spell Engine's critical strike and cast-duration paths for Spell Power critical and haste attributes.
