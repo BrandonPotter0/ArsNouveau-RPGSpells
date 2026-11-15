@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /**
  * Applies Ars Nouveau's Spell Power armor thread to the final RPG spell damage
- * amount immediately before Spell Engine passes it to Entity.hurt.
+ * and healing amounts immediately before Spell Engine applies them.
  */
 @Mixin(value = SpellImpacts.class, remap = false)
 public abstract class SpellPowerImpactMixin {
@@ -24,7 +24,7 @@ public abstract class SpellPowerImpactMixin {
             ),
             index = 1
     )
-    private static float arsnouveauRpgSpells$addArmorSpellPowerThread(
+    private static float arsnouveauRpgSpells$addArmorSpellPowerThreadToDamage(
             float damage,
             @Local(argsOnly = true, ordinal = 0) LivingEntity caster
     ) {
@@ -38,5 +38,29 @@ public abstract class SpellPowerImpactMixin {
         }
 
         return damage + (2.0F * perkLevel);
+    }
+
+    @ModifyArg(
+            method = "performImpact",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/LivingEntity;heal(F)V"
+            ),
+            index = 0
+    )
+    private static float arsnouveauRpgSpells$addArmorSpellPowerThreadToHealing(
+            float healing,
+            @Local(argsOnly = true, ordinal = 0) LivingEntity caster
+    ) {
+        if (caster.level().isClientSide || healing <= 0.0F) {
+            return healing;
+        }
+
+        int perkLevel = PerkUtil.countForPerk(SpellDamagePerk.INSTANCE, caster);
+        if (perkLevel <= 0) {
+            return healing;
+        }
+
+        return healing + (2.0F * perkLevel);
     }
 }
