@@ -50,7 +50,7 @@ public final class DamageDiagnostics {
         LOGGER.info(
                 "[ArsNouveauRpgSpells DamageDebug] FINAL player={} type={} isMagic={} original={} afterMitigation={}",
                 player.getGameProfile().getName(),
-                BuiltInRegistries.DAMAGE_TYPE.getKey(source.type()),
+                damageTypeId(source),
                 source.is(IS_MAGIC),
                 event.getOriginalDamage(),
                 event.getNewDamage()
