@@ -1,6 +1,5 @@
 package com.brandonpotter.arsnouveaurpgspells.compat.spellpower;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -33,7 +32,7 @@ public final class DamageDiagnostics {
         LOGGER.info(
                 "[ArsNouveauRpgSpells DamageDebug] INCOMING player={} type={} isMagic={} original={} current={} direct={} causing={}",
                 player.getGameProfile().getName(),
-                BuiltInRegistries.DAMAGE_TYPE.getKey(source.type()),
+                damageTypeId(source),
                 source.is(IS_MAGIC),
                 event.getOriginalAmount(),
                 event.getAmount(),
@@ -58,10 +57,16 @@ public final class DamageDiagnostics {
         );
     }
 
+    private static String damageTypeId(DamageSource source) {
+        return source.typeHolder().unwrapKey()
+                .map(key -> key.location().toString())
+                .orElse("unknown");
+    }
+
     private static String describeEntity(Entity entity) {
         if (entity == null) {
             return "none";
         }
-        return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()) + "/" + entity.getClass().getName();
+        return entity.getType().toString() + "/" + entity.getClass().getName();
     }
 }
