@@ -51,11 +51,10 @@ public final class ShockedDamageProtection {
             return;
         }
 
-        float protectionFraction = Math.clamp(
-                enchantmentReduction / damageBeforeEnchantments,
-                0.0F,
-                1.0F
-        );
+        float protectionFraction = Math.max(0.0F, Math.min(
+                1.0F,
+                enchantmentReduction / damageBeforeEnchantments
+        ));
         float protectedShockedBonus = shockedBonus * (1.0F - protectionFraction);
 
         // Only adjust Ars Nouveau's added Shocked bonus. The original lightning
