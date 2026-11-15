@@ -2,33 +2,33 @@ package com.brandonpotter.arsnouveaurpgspells.mixin;
 
 import com.hollingsworth.arsnouveau.api.util.PerkUtil;
 import com.hollingsworth.arsnouveau.common.perk.SpellDamagePerk;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.LivingEntity;
 import net.spell_engine.internals.impact.SpellImpacts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /**
- * Applies Ars Nouveau's Spell Power armor thread directly to Spell Engine's
- * calculated damage amount, while the spell caster is still in scope.
+ * Applies Ars Nouveau's Spell Power armor thread to the final RPG spell damage
+ * amount immediately before Spell Engine passes it to Entity.hurt.
  */
 @Mixin(value = SpellImpacts.class, remap = false)
 public abstract class SpellPowerImpactMixin {
 
-    @ModifyExpressionValue(
+    @ModifyArg(
             method = "performImpact",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/spell_power/api/SpellPower$Result$Value;amount()D"
+                    target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
             ),
-            remap = false
+            index = 1
     )
-    private static double arsnouveauRpgSpells$addArmorSpellPowerThread(
-            double damage,
+    private static float arsnouveauRpgSpells$addArmorSpellPowerThread(
+            float damage,
             @Local(argsOnly = true, ordinal = 0) LivingEntity caster
     ) {
-        if (caster.level().isClientSide || damage <= 0.0D) {
+        if (caster.level().isClientSide || damage <= 0.0F) {
             return damage;
         }
 
@@ -37,6 +37,6 @@ public abstract class SpellPowerImpactMixin {
             return damage;
         }
 
-        return damage + (2.0D * perkLevel);
+        return damage + (2.0F * perkLevel);
     }
 }
